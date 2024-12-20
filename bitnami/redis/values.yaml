@@ -172,6 +172,19 @@ commonConfiguration: |-
 existingConfigmap: ""
 ## @section Redis&reg; master configuration parameters
 ##
+acl:
+  enabled: true
+  defaultUserEnabled: true
+  ## @param acl.users Describe ACL users with a pair of username & password, allowed commands, keys and channels
+  ## Example:
+  ## users:
+  ##   - username: "my-user":
+  ##     password: "mypassword"
+  ##     enabled: "on"
+  ##     commands: "+@all"
+  ##     keys: "~*"
+  ##     channels: "&*"
+  users: []
 master:
   ## @param master.count Number of Redis&reg; master instances to deploy (experimental, requires additional configuration)
   ##

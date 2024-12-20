@@ -20,6 +20,9 @@ data:
     {{- include "common.tplvalues.render" ( dict "value" .Values.commonConfiguration "context" $ ) | nindent 4 }}
     {{- end }}
     # End of common configuration
+    {{- if .Values.acl.enabled }}
+    aclfile /opt/bitnami/redis/etc/users.acl
+    {{- end }}
   master.conf: |-
     dir {{ .Values.master.persistence.path }}
     # User-supplied master configuration:
@@ -44,6 +47,22 @@ data:
     {{- end }}
     {{- end }}
     # End of replica configuration
+  users.acl: |-
+    # User-supplied ACL configuration:
+    {{- if .Values.acl.enabled }}
+    {{- if .Values.acl.defaultUserEnabled }}
+    # default user
+{{/*    TODO: Check global.password and auth.password */}}
+    user default on sanitize-payload #{{ sha256sum .Values.auth.password }} ~* &* +@all
+    {{- end }}
+    {{- if .Values.acl.users }}
+    # custom users
+    {{- range .Values.acl.users }}
+    user {{ .username }} {{ default "on" .enabled}} {{ if .password}}#{{ sha256sum .password}}{{ else }}nopass{{ end }} {{ default "~*" .keys}} {{ default "&*" .channels }} {{ default "+@all" .commands }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    # End of ACL configuration
   {{- if .Values.sentinel.enabled }}
   sentinel.conf: |-
     dir "/tmp"
